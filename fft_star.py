@@ -54,9 +54,6 @@ def transform(a):
     for i in range(quar):
         for j in range(quar):
             a[i][j],a[i+quar][j+quar] =  a[i+quar][j+quar],a[i][j]
-            
-    for i in range(quar):
-        for j in range(quar):
             a[i+quar][j], a[i][j+quar] = a[i][j+quar],a[i+quar][j]
 
     return a
