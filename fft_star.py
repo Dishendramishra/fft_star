@@ -25,7 +25,7 @@ def plot(ary):
 # ===============================================================
 # Creates disk in a 2darray
 # ===============================================================
-def circle(array,radius,value,cross=False):
+def circle(array,radius,value,cross=""):
     size = array.shape[0]
     center = size//2
 
@@ -35,11 +35,17 @@ def circle(array,radius,value,cross=False):
             if ((x-center)**2 + (y-center)**2 - radius**2) <=0:
                 array[y][x] = value
 
-    # Create two diameter lines perpendicular to eachother
-    if cross:
-        thickness = int(radius*0.03)
+    # Create diameter chords
+    thickness = int(radius*0.03)
+    if cross=="+":
         array[center-thickness:center+thickness,center-radius:center+radius] = 0
         array[center-radius:center+radius,center-thickness:center+thickness] = 0
+    elif cross=="-":
+        array[center-thickness:center+thickness,center-radius:center+radius] = 0
+    elif cross=="|":
+        array[center-radius:center+radius,center-thickness:center+thickness] = 0
+    else:
+        pass
 
     return array
 # ===============================================================
@@ -55,22 +61,24 @@ def transform(a):
         for j in range(quar):
             a[i][j],a[i+quar][j+quar] =  a[i+quar][j+quar],a[i][j]
             a[i+quar][j], a[i][j+quar] = a[i][j+quar],a[i+quar][j]
+    a = np.rot90(a)
 
     return a
 # ===============================================================
 
+if __name__ == "__main__":
+    mask = np.zeros(shape=(2000,2000))
+    mask = circle(mask,100,1,"|")
+    mask = circle(mask,5,0)
 
-mask = np.zeros(shape=(2000,2000))
-mask = circle(mask,100,1,True)
-mask = circle(mask,15,0)
+    fits.writeto("image.fits",mask,overwrite=True)
 
-fits.writeto("image.fits",mask,overwrite=True)
+    # fft = np.abs(fft2(fftshift(mask))
+    fft = np.abs(fft2(mask))
+    fft = transform(fft)
 
-fft = np.abs(fft2(fftshift(mask)))
-fft = transform(fft)
+    fits.writeto("fft.fits",fft,overwrite=True)
 
-fits.writeto("fft.fits",fft,overwrite=True)
-
-system("sudo ds9 ./image.fits &")
-system("sudo ds9 ./fft.fits &")
-plot(fft[fft.shape[0]//2])
+    system("sudo ds9 ./image.fits &")
+    system("sudo ds9 ./fft.fits &")
+    # plot(fft[fft.shape[0]//2])
