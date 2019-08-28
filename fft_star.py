@@ -5,6 +5,7 @@ import matplotlib
 matplotlib.use('Qt5Agg') 
 import matplotlib.pyplot as plt
 from os import system
+import copy
 
 # ===============================================================
 # Plots 1darray and 2darray
@@ -55,20 +56,30 @@ def circle(array,radius,value,cross=""):
 # swaps 2,4 and 1,3 quadrants of a square matix
 # ===============================================================
 def transform(a):
-    quar = a.shape[0]//2
+    # quar = a.shape[0]//2
 
-    for i in range(quar):
-        for j in range(quar):
-            a[i][j],a[i+quar][j+quar] =  a[i+quar][j+quar],a[i][j]
-            a[i+quar][j], a[i][j+quar] = a[i][j+quar],a[i+quar][j]
-    a = np.rot90(a)
+    # for i in range(quar):
+    #     for j in range(quar):
+    #         a[i][j],a[i+quar][j+quar] =  a[i+quar][j+quar],a[i][j]
+    #         a[i+quar][j], a[i][j+quar] = a[i][j+quar],a[i+quar][j]
+    # a = np.rot90(a)
+
+    half = a.shape[0]//2
+    
+    temp = copy.deepcopy(a[:half,:half])    # Swaping 
+    a[:half,:half] = a[-half:,-half:]       # 2 and 4
+    a[-half:,-half:] = temp                 # quadrants
+
+    temp = copy.deepcopy(a[:half,-half:])    # Swaping 
+    a[:half,-half:] = a[-half:,:half]       # 1 and 3
+    a[-half:,:half] = temp                 # quadrants
 
     return a
 # ===============================================================
 
 if __name__ == "__main__":
     mask = np.zeros(shape=(2000,2000))
-    mask = circle(mask,100,1,"|")
+    mask = circle(mask,100,1,"+")
     mask = circle(mask,5,0)
 
     fits.writeto("image.fits",mask,overwrite=True)
